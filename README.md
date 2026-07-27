@@ -83,5 +83,5 @@ This confirms data survives a full container/network rebuild, not just a contain
 - **`.dockerignore`** — excludes `.env`, `.git`, `__pycache__/`, and the old SQLite `tasks.db` file from the image build context. Without this, the real Postgres credentials in `.env` would be baked directly into the built image.
 - **`init/init.sql`** — creates the `tasks` table. Postgres only runs files in `docker-entrypoint-initdb.d/` on a container's first boot with an empty data directory — mounting this against a volume that already has data silently does nothing, which is expected Postgres behavior, not a bug.
 
-What's next
+## What's next:
 Plain HTML/CSS/JS frontend (no framework) consuming this API — will require CORS middleware to be added to FastAPI, since the frontend will be served from a different origin.
