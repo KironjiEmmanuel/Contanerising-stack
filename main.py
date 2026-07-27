@@ -2,6 +2,7 @@ import psycopg2
 import os
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse, Response
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 import uvicorn
@@ -55,6 +56,12 @@ class PostgresTaskRepository:
 
 repo = PostgresTaskRepository()
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5500"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def task_API():

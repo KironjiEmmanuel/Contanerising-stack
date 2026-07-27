@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Task API Frontend</title>
+<style>
+  body { font-family: sans-serif; max-width: 500px; margin: 40px auto; }
+  li { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  li span { flex: 1; }
+  .done { text-decoration: line-through; color: #888; }
+  input[type="text"] { padding: 6px; width: 70%; }
+  button { padding: 6px 10px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h1>Tasks</h1>
+
+<form id="task-form">
+  <input type="text" id="title-input" placeholder="New task title" required>
+  <button type="submit">Add</button>
+</form>
+
+<ul id="task-list"></ul>
+
+<script>
+const API_URL = "http://localhost:8000";
+
+async function loadTasks() {
+  const res = await fetch(`${API_URL}/tasks`);
+  const tasks = await res.json();
+  const list = document.getElementById("task-list");
+  list.innerHTML = "";
+  tasks.forEach(task => {
+    const li = document.createElement("li");
+
+    const span = document.createElement("span");
+    span.textContent = task.title;
+    if (task.done) span.classList.add("done");
+
+    const toggleBtn = document.createElement("button");
+    toggleBtn.textContent = task.done ? "Undo" : "Done";
+    toggleBtn.onclick = () => toggleDone(task.id, !task.done);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Delete";
+    deleteBtn.onclick = () => deleteTask(task.id);
+
+    li.appendChild(span);
+    li.appendChild(toggleBtn);
+    li.appendChild(deleteBtn);
+    list.appendChild(li);
+  });
+}
+
+async function createTask(title) {
+  await fetch(`${API_URL}/tasks`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title })
+  });
+  loadTasks();
+}
+
+async function toggleDone(id, done) {
+  await fetch(`${API_URL}/tasks/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ done })
+  });
+  loadTasks();
+}
+
+async function deleteTask(id) {
+  await fetch(`${API_URL}/tasks/${id}`, { method: "DELETE" });
+  loadTasks();
+}
+
+document.getElementById("task-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const input = document.getElementById("title-input");
+  if (input.value.trim()) {
+    createTask(input.value.trim());
+    input.value = "";
+  }
+});
+
+loadTasks();
+</script>
+
+</body>
+</html>
